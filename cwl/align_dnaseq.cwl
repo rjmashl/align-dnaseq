@@ -4,7 +4,7 @@ arguments:
   valueFrom: output
 baseCommand:
 - python
-- /align_dnaseq/align_dnaseq/align_dnaseq.py
+- /align-dnaseq/align_dnaseq/align_dnaseq.py
 class: CommandLineTool
 cwlVersion: v1.0
 id: align_dnaseq

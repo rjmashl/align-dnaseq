@@ -7,10 +7,10 @@ RUN bash ~/miniconda.sh -b -p /miniconda
 ENV PATH="/miniconda/bin:$PATH"
 
 # get env file seperately so it doesn't reinstall every time
-COPY ./env.yaml /align_dnaseq/env.yaml
-RUN conda env create --file /align_dnaseq/env.yaml 
+COPY ./env.yaml /align-dnaseq/env.yaml
+RUN conda env create --file /align-dnaseq/env.yaml 
 
-COPY . /align_dnaseq
+COPY . /align-dnaseq
 
 ENV PATH="/miniconda/envs/align_dnaseq/bin:$PATH"
 
