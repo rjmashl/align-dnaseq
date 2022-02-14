@@ -224,7 +224,7 @@ def main():
     run_align_dnaseq(
         args.fq1, args.fq2, args.reference, args.known_sites, args.sample,
         args.flowcell, args.lane, args.index_sequencer,
-        args.library_preparation, args.platform, args.output_prefix, args.cpu)
+        args.library_preparation, args.platform, args.out_prefix, args.cpu)
 
 
 if __name__ == '__main__':
