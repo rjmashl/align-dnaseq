@@ -1,0 +1,37 @@
+cpu: a_int
+flowcell: a_string
+fq_1:
+  class: File
+  path: a/file/path
+fq_2:
+  class: File
+  path: a/file/path
+index_sequencer: a_string
+known_sites:
+  class: File
+  path: path/to/vcf.gz
+  secondaryFiles:
+  - class: File
+    path: path/to/vcf.gz.tbi
+lane: a_string
+library_preparation: a_string
+platform: a_string
+reference:
+  class: File
+  path: path/to/GRCh38.d1.vd1.fa
+  secondaryFiles:
+  - class: File
+    path: path/to/GRCh38.d1.vd1.fa.amb
+  - class: File
+    path: path/to/GRCh38.d1.vd1.fa.ann
+  - class: File
+    path: path/to/GRCh38.d1.vd1.fa.bwt
+  - class: File
+    path: path/to/GRCh38.d1.vd1.fa.fai
+  - class: File
+    path: path/to/GRCh38.d1.vd1.fa.pac
+  - class: File
+    path: path/to/GRCh38.d1.vd1.fa.sa
+  - class: File
+    path: path/to/GRCh38.d1.vd1.dict
+sample: a_string

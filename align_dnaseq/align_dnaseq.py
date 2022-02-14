@@ -12,20 +12,29 @@ parser = argparse.ArgumentParser()
 parser.add_argument('sample', type=str,
     help='Sample id')
 
-parser.add_argument('flowcell', type=str,
+parser.add_argument('fq1', type=str,
+    help='Fastq R1')
+
+parser.add_argument('fq2', type=str,
+    help='Fastq R2')
+
+parser.add_argument('--flowcell', type=str,
     help='flowcell used for sequencing')
 
-parser.add_argument('lane', type=str,
+parser.add_argument('--lane', type=str,
     help='sequencing lane')
 
-parser.add_argument('index_sequencer', type=str,
+parser.add_argument('--index-sequencer', type=str,
     help='index sequencer')
 
-parser.add_argument('library_preparation', type=str,
+parser.add_argument('--library-preparation', type=str,
     help='library prep id')
 
 parser.add_argument('--known-sites', type=str,
     help='path to known sites file')
+
+parser.add_argument('--reference', type=str,
+    help='reference fp. Also needs to be in same directory as a .dict file')
 
 parser.add_argument('--platform', type=str, default='ILLUMINA',
     help='platform. Default is ILLUMINA')
