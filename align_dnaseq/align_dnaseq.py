@@ -71,7 +71,7 @@ def bwa_pe(sample, flowcell, lane, index_sequencer, library_preparation, platfor
     sm = sample
 
     pieces = [
-        'bwa',
+        'bwa mem',
         '-t', str(cpu),
         '-M',
         '-R', f'"@RG\tID:{id}\tPL:{pl}\tLB:{lb}\tPU:{pu}\tSM:{sm}"',
