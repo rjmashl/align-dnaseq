@@ -13,11 +13,11 @@ inputs:
   inputBinding:
     position: '1'
   type: string
-- id: fq1
+- id: fq_1
   inputBinding:
     position: '2'
   type: File
-- id: fq2
+- id: fq_2
   inputBinding:
     position: '3'
   type: File
