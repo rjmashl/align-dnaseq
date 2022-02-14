@@ -46,7 +46,7 @@ inputs:
     position: '0'
     prefix: --platform
   type: string
-- id: known-sites
+- id: known_sites
   inputBinding:
     position: '0'
     prefix: --known-sites
