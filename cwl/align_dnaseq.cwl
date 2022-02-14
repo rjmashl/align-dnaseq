@@ -66,6 +66,11 @@ inputs:
   - .sa
   - ^.dict
   type: File
+- id: cpu
+  inputBinding:
+    position: '0'
+    prefix: --cpu
+  type: string
 - default: /miniconda/envs/align_dnaseq/bin:$PATH
   id: environ_PATH
   type: string?
@@ -79,6 +84,7 @@ requirements:
 - class: DockerRequirement
   dockerPull: estorrs/align_dnaseq:0.0.1
 - class: ResourceRequirement
+  coresMin: $(inputs.cpu)
   ramMin: 28000
 - class: EnvVarRequirement
   envDef:
