@@ -168,21 +168,21 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
     cmd = bwa_pe(sample, flowcell, lane, index_sequencer, library_preparation,
                  platform, reference, trimmed_fq1, trimmed_fq2, out_sam, cpu=8)
     logging.info(f'executing command: {cmd}')
-    subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(cmd, shell=True)
     logging.info(output)
 
     logging.info('converting sam to bam')
     bwa_bam = os.path.join(intermediate_dir, 'bwa_out.bam')
     cmd = sam_to_bam(out_sam, bwa_bam)
     logging.info(f'executing command: {cmd}')
-    subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(cmd, shell=True)
     logging.info(output)
 
     logging.info('sorting and indexing bam')
     sorted_bam = os.path.join(intermediate_dir, 'bwa_out.sorted.bam')
     cmd = sort_and_index(bwa_bam, sorted_bam)
     logging.info(f'executing command: {cmd}')
-    subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(cmd, shell=True)
     logging.info(output)
 
     logging.info('removing duplicates')
@@ -190,28 +190,28 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
     dedup_metrics = os.path.join(intermediate_dir, 'dedup_metrics.txt')
     cmd = remove_duplicates(sorted_bam, dedup_bam, dedup_metrics)
     logging.info(f'executing command: {cmd}')
-    subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(cmd, shell=True)
     logging.info(output)
 
     logging.info('modeling bsqr')
     bsqr_file = os.path.join(intermediate_dir, 'bsqr_recal_file.table')
     cmd = base_recalibrator(dedup_bam, known_sites, reference, bsqr_file)
     logging.info(f'executing command: {cmd}')
-    subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(cmd, shell=True)
     logging.info(output)
 
     logging.info('applying bsqr')
     bsqr_bam = os.path.join(intermediate_dir, 'final.bam')
     cmd = apply_base_recalibrator(dedup_bam, bsqr_file, bsqr_bam)
     logging.info(f'executing command: {cmd}')
-    subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(cmd, shell=True)
     logging.info(output)
 
     logging.info('sorting and indexing bam')
     output_bam = f'{output_prefix}.bam'
     cmd = sort_and_index(bsqr_bam, output_bam)
     logging.info(f'executing command: {cmd}')
-    subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(cmd, shell=True)
     logging.info(output)
 
     logging.info('cleaning up large intermediates')
