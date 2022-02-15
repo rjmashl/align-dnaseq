@@ -79,6 +79,8 @@ outputs:
 - id: output_bam
   outputBinding:
     glob: output.bam
+  secondaryFiles:
+  - output.bam.bai
   type: File
 requirements:
 - class: DockerRequirement
