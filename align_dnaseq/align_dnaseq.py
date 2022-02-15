@@ -214,6 +214,9 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
     output = subprocess.check_output(cmd, shell=True)
     logging.info(output)
 
+    # picard outputs index as just output.bai not output.bam.bai so renaming
+    os.rename(f'{output_prefix}.bai', f'{output_prefix}.bam.bai')
+
     logging.info('cleaning up large intermediates')
     for fp in [out_sam, bwa_bam, sorted_bam, dedup_bam, bsqr_bam]:
         logging.info(f'removing {fp}')
