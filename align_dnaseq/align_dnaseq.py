@@ -74,7 +74,7 @@ def bwa_pe(sample, flowcell, lane, index_sequencer, library_preparation, platfor
         'bwa mem',
         '-t', str(cpu),
         '-M',
-        '-R', f'"@RG\tID:{id}\tPL:{pl}\tLB:{lb}\tPU:{pu}\tSM:{sm}"',
+        '-R', f'"@RG\\tID:{id}\\tPL:{pl}\\tLB:{lb}\\tPU:{pu}\\tSM:{sm}"',
         '-o', out_sam,
         ref, fq1, fq2
     ]
