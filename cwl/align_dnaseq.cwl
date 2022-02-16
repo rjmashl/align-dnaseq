@@ -80,7 +80,7 @@ outputs:
   outputBinding:
     glob: output.bam
   secondaryFiles:
-  - output.bam.bai
+  - ^.bai
   type: File
 requirements:
 - class: DockerRequirement
