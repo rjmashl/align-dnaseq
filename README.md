@@ -22,7 +22,7 @@ docker pull estorrs/align_dnaseq:0.0.1
 Example command:
 
 ```bash
-python /align-dnaseq/align_dnaseq/align_dnaseq.py --out-prefix output --cpu 40 --flowcell HFMFWDSXY --index-sequencer CCAGTAGCGT-ATGTATTGGC --known-sites known_sites.chr.vcf.gz --lane 2 --library-preparation TWCE-HT191P1-S1H1A3Y3D1_1-lib1 --platform ILLUMINA --reference GRCh38.d1.vd1.fa HT191P1-S1H1A3Y3.WXS.T CCAGTAGCGT-ATGTATTGGC_S53_L002_R1_001.fastq.gz CCAGTAGCGT-ATGTATTGGC_S53_L002_R2_001.fastq.gz
+python align_dnaseq.py --out-prefix output --cpu 40 --flowcell HFMFWDSXY --index-sequencer CCAGTAGCGT-ATGTATTGGC --known-sites known_sites.chr.vcf.gz --lane 2 --library-preparation TWCE-HT191P1-S1H1A3Y3D1_1-lib1 --platform ILLUMINA --reference GRCh38.d1.vd1.fa HT191P1-S1H1A3Y3.WXS.T CCAGTAGCGT-ATGTATTGGC_S53_L002_R1_001.fastq.gz CCAGTAGCGT-ATGTATTGGC_S53_L002_R2_001.fastq.gz
 ```
 
 See compute1 section for filepaths to a reference and known sites file.
