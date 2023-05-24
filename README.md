@@ -36,26 +36,21 @@ python align_dnaseq.py [-h] [--flowcell FLOWCELL] [--lane LANE] [--index-sequenc
 ```
 
 positional arguments:
-  sample                Sample id
-  fq1                   Fastq R1
-  fq2                   Fastq R2
++  sample                Sample id
++  fq1                   Fastq R1
++  fq2                   Fastq R2
 
 options:
-  -h, --help            show this help message and exit
-  --flowcell FLOWCELL   flowcell used for sequencing
-  --lane LANE           sequencing lane
-  --index-sequencer INDEX_SEQUENCER
-                        index sequencer
-  --library-preparation LIBRARY_PREPARATION
-                        library prep id
-  --known-sites KNOWN_SITES
-                        path to known sites file
-  --reference REFERENCE
-                        reference fp. Also needs to be in same directory as a .dict file
-  --platform PLATFORM   platform. Default is ILLUMINA
-  --out-prefix OUT_PREFIX
-                        output prefix for aligned and sorted bam file
-  --cpu CPU             num cpus to use
++  -h, --help            show this help message and exit
++  --flowcell FLOWCELL   flowcell used for sequencing
++  --lane LANE           sequencing lane
++  --index-sequencer INDEX_SEQUENCER                        index sequencer
++  --library-preparation LIBRARY_PREPARATION                       library prep id
++  --known-sites KNOWN_SITES                       path to known sites file
++  --reference REFERENCE                       reference fp. Also needs to be in same directory as a .dict file
++  --platform PLATFORM   platform. Default is ILLUMINA
++  --out-prefix OUT_PREFIX                       output prefix for aligned and sorted bam file
++  --cpu CPU             num cpus to use
 
 
 ## Usage with bsub on compute1
