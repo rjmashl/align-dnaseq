@@ -18,16 +18,16 @@ parser.add_argument('fq1', type=str,
 parser.add_argument('fq2', type=str,
     help='Fastq R2')
 
-parser.add_argument('--flowcell', type=str,
+parser.add_argument('--flowcell', type=str, default='DUMMYFLOWCELL',
     help='flowcell used for sequencing')
 
-parser.add_argument('--lane', type=str,
+parser.add_argument('--lane', type=str, default='DUMMYLANE',
     help='sequencing lane')
 
-parser.add_argument('--index-sequencer', type=str,
+parser.add_argument('--index-sequencer', type=str, default='DUMMYSEQUENCER',
     help='index sequencer')
 
-parser.add_argument('--library-preparation', type=str,
+parser.add_argument('--library-preparation', type=str, default='DUMMYLIB',
     help='library prep id')
 
 parser.add_argument('--known-sites', type=str,
@@ -114,7 +114,7 @@ def remove_duplicates(input_bam, output_bam, metrics_fp):
     #    REMOVE_DUPLICATES=true \
     #    M=$OUT/$NAME.human.remDup.metrics.txt
     pieces = [
-        'picard MarkDuplicates REMOVE_DUPLICATES=true',
+        'picard MarkDuplicates REMOVE_DUPLICATES=false',
         f'I={input_bam}',
         f'O={output_bam}',
         f'M={metrics_fp}',
