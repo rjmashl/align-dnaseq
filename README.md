@@ -83,7 +83,7 @@ bsub -R "select[mem>28000] rusage[mem=28000]" -M 28000 -n 40 -G compute-dinglab 
 
 Example of a command where default dummy values are used for sequencing metadata.
 
-Full run script and outputs are in storage1 here ``. The commands to align the sample are in `run.sh`. 
+Full run script and outputs are in storage1 here `/storage1/fs1/dinglab/Active/Projects/estorrs/align-dnaseq/tests/compute1/dummy_values`. The commands to align the sample are in `run.sh`. 
 
 ```bash
 bsub -R "select[mem>28000] rusage[mem=28000]" -M 28000 -n 40 -G compute-dinglab -q general -oo log.txt -a 'docker(estorrs/align_dnaseq:0.0.1)' 'python /align-dnaseq/align_dnaseq/align_dnaseq.py --out-prefix output --cpu 40 --known-sites /storage1/fs1/dinglab/Active/Projects/estorrs/pecgs_resources/dnaseq_alignment/dbsnp/00-All.chr.vcf.gz --reference /storage1/fs1/dinglab/Active/Projects/estorrs/pecgs_resources/cnv/references/GRCh38.d1.vd1/GRCh38.d1.vd1.fa HT191P1-S1H1A3Y3.WXS.T /storage1/fs1/dinglab/Active/Projects/estorrs/pecgs_resources/test_samples/HT191P1-S1H1A3Y3/wxs/CCAGTAGCGT-ATGTATTGGC_S53_L002_R1_001.fastq.gz /storage1/fs1/dinglab/Active/Projects/estorrs/pecgs_resources/test_samples/HT191P1-S1H1A3Y3/wxs/CCAGTAGCGT-ATGTATTGGC_S53_L002_R2_001.fastq.gz'
@@ -91,7 +91,7 @@ bsub -R "select[mem>28000] rusage[mem=28000]" -M 28000 -n 40 -G compute-dinglab 
 
 Example of a command where sequencing metadata is specified.
 
-Full run script and outputs are in storage1 here ``. The commands to align the sample are in `run.sh`. 
+Full run script and outputs are in storage1 here `/storage1/fs1/dinglab/Active/Projects/estorrs/align-dnaseq/tests/compute1/full`. The commands to align the sample are in `run.sh`. 
 
 ```bash
 bsub -R "select[mem>28000] rusage[mem=28000]" -M 28000 -n 40 -G compute-dinglab -q general -oo log.txt -a 'docker(estorrs/align_dnaseq:0.0.1)' 'python /align-dnaseq/align_dnaseq/align_dnaseq.py --out-prefix output --cpu 40 --flowcell HFMFWDSXY --index-sequencer CCAGTAGCGT-ATGTATTGGC --known-sites /storage1/fs1/dinglab/Active/Projects/estorrs/pecgs_resources/dnaseq_alignment/dbsnp/00-All.chr.vcf.gz --lane 2 --library-preparation TWCE-HT191P1-S1H1A3Y3D1_1-lib1 --platform ILLUMINA --reference /storage1/fs1/dinglab/Active/Projects/estorrs/pecgs_resources/cnv/references/GRCh38.d1.vd1/GRCh38.d1.vd1.fa HT191P1-S1H1A3Y3.WXS.T /storage1/fs1/dinglab/Active/Projects/estorrs/pecgs_resources/test_samples/HT191P1-S1H1A3Y3/wxs/CCAGTAGCGT-ATGTATTGGC_S53_L002_R1_001.fastq.gz /storage1/fs1/dinglab/Active/Projects/estorrs/pecgs_resources/test_samples/HT191P1-S1H1A3Y3/wxs/CCAGTAGCGT-ATGTATTGGC_S53_L002_R2_001.fastq.gz'
