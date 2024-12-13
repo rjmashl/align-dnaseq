@@ -49,7 +49,7 @@ parser.add_argument('--cpu', type=int, default=1,
 args = parser.parse_args()
 
 
-def trimgalore(fq1, fq2, out_dir, cores=4, min_length=50):
+def trimgalore(fq1, fq2, out_dir, cores=16, min_length=50):
     # $TRIMGALORE --phred33 --fastqc --cores 4 --length $MINLEN -q 20 -o $OUT --paired $FQ1 $FQ2 --path_to_cutadapt /diskmnt/Projects/Users/austins2/software/anaconda3/bin/cutadapt
     pieces = [
         'trim_galore',
@@ -62,7 +62,7 @@ def trimgalore(fq1, fq2, out_dir, cores=4, min_length=50):
 
 
 def bwa_pe(sample, flowcell, lane, index_sequencer, library_preparation, platform,
-            ref, fq1, fq2, out_sam, cpu=8):
+            ref, fq1, fq2, out_sam, cpu=16):
     # $BWA mem -t 8 -M -R "@RG\tID:$NAME\tPL:illumina\tLB:$NAME\tPU:$NAME\tSM:$NAME" $REF_HUMAN $FQ1 $FQ2 | $SAMTOOLS view -Shb -o $OUT/$NAME.human.bam -
     id = f'{flowcell}.{lane}'
     pl = platform
@@ -166,7 +166,7 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
     Path(intermediate_dir).mkdir(exist_ok=True, parents=True)
     out_sam = os.path.join(intermediate_dir, 'bwa_out.sam')
     cmd = bwa_pe(sample, flowcell, lane, index_sequencer, library_preparation,
-                 platform, reference, trimmed_fq1, trimmed_fq2, out_sam, cpu=8)
+                 platform, reference, trimmed_fq1, trimmed_fq2, out_sam, cpu=16)
     logging.info(f'executing command: {cmd}')
     output = subprocess.check_output(cmd, shell=True)
     logging.info(output)
