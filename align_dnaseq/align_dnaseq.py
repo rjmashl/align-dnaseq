@@ -151,15 +151,18 @@ def index_bam(input_bam):
 def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, index_sequencer, library_preparation, platform, output_prefix, cpu):
     logging.info('running trim galore')
     trim_galore_out_dir = 'trim_galore_outputs'
-    cmd = trimgalore(fq1, fq2, trim_galore_out_dir)
-    logging.info(f'executing command: {cmd}')
-    output = subprocess.check_output(cmd, shell=True)
-    logging.info(output)
-
     fq1_root = re.sub(r'^(.*).((fq)|(fastq))(.gz)?', r'\1', fq1.split('/')[-1])
     fq2_root = re.sub(r'^(.*).((fq)|(fastq))(.gz)?', r'\1', fq2.split('/')[-1])
     trimmed_fq1 = os.path.join(trim_galore_out_dir, f'{fq1_root}_val_1.fq.gz')
     trimmed_fq2 = os.path.join(trim_galore_out_dir, f'{fq2_root}_val_2.fq.gz')
+
+    if os.path.isfile(trimmed_fq1) and os.path.isfile(trimmed_fq2):
+        logging.info('Trimmed fq1 and fq2 exist. Skipping trim step.')
+    else:
+        cmd = trimgalore(fq1, fq2, trim_galore_out_dir)
+        logging.info(f'executing command: {cmd}')
+        output = subprocess.check_output(cmd, shell=True)
+        logging.info(output)
 
     logging.info('aligning with bwa')
     intermediate_dir = 'intermediates'
