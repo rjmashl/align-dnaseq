@@ -4,6 +4,7 @@ import re
 import logging
 import subprocess
 from pathlib import Path
+import tempfile
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
@@ -44,6 +45,9 @@ parser.add_argument('--out-prefix', type=str, default='output',
 
 parser.add_argument('--cpu', type=int, default=1,
     help='cpus to use')
+
+parser.add_argument('--tmpdir', type=str, default='',
+    help='temporary dir for sorting to use')
 
 
 args = parser.parse_args()
@@ -90,7 +94,7 @@ def sam_to_bam(sam_fp, bam_fp):
     return ' '.join(pieces)
 
 
-def sort_and_index(input_bam, output_bam):
+def sort_and_index(input_bam, output_bam, tmpdir):
     # $JAVA -Xmx16G -jar $PICARD SortSam \
     #    CREATE_INDEX=true \
     #    I=$OUT/$NAME.human.bam \
@@ -101,6 +105,7 @@ def sort_and_index(input_bam, output_bam):
         'picard SortSam CREATE_INDEX=true SORT_ORDER=coordinate VALIDATION_STRINGENCY=STRICT',
         f'I={input_bam}',
         f'O={output_bam}',
+        f'TMP_DIR={tmpdir}',
     ]
     return ' '.join(pieces)
 
@@ -176,17 +181,22 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
 
     logging.info('converting sam to bam')
     bwa_bam = os.path.join(intermediate_dir, 'bwa_out.bam')
-    cmd = sam_to_bam(out_sam, bwa_bam)
-    logging.info(f'executing command: {cmd}')
-    output = subprocess.check_output(cmd, shell=True)
-    logging.info(output)
+    if os.path.isfile(bwa_bam):
+        logging.info('bwa_out.bam exists. Skipping this step.')
+    else:
+        cmd = sam_to_bam(out_sam, bwa_bam)
+        logging.info(f'executing command: {cmd}')
+        output = subprocess.check_output(cmd, shell=True)
+        logging.info(output)
 
     logging.info('sorting and indexing bam')
     sorted_bam = os.path.join(intermediate_dir, 'bwa_out.sorted.bam')
-    cmd = sort_and_index(bwa_bam, sorted_bam)
-    logging.info(f'executing command: {cmd}')
-    output = subprocess.check_output(cmd, shell=True)
-    logging.info(output)
+    with tempfile.TemporaryDirectory( dir=args.tmpdir ) as tmpdirname:
+        print('created temporary directory', tmpdirname)
+        cmd = sort_and_index(bwa_bam, sorted_bam, tmpdirname)
+        logging.info(f'executing command: {cmd}')
+        output = subprocess.check_output(cmd, shell=True)
+        logging.info(output)
 
     logging.info('removing duplicates')
     dedup_bam = os.path.join(intermediate_dir, 'bwa_out.sorted.dedup.bam')
@@ -212,10 +222,12 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
 
     logging.info('sorting and indexing bam')
     output_bam = f'{output_prefix}.bam'
-    cmd = sort_and_index(bsqr_bam, output_bam)
-    logging.info(f'executing command: {cmd}')
-    output = subprocess.check_output(cmd, shell=True)
-    logging.info(output)
+    with tempfile.TemporaryDirectory( dir=args.tmpdir ) as tmpdirname:
+        print('created temporary directory', tmpdirname)
+        cmd = sort_and_index(bsqr_bam, output_bam, tmpdirname)
+        logging.info(f'executing command: {cmd}')
+        output = subprocess.check_output(cmd, shell=True)
+        logging.info(output)
 
     # picard outputs index as just output.bai not output.bam.bai so renaming
     os.rename(f'{output_prefix}.bai', f'{output_prefix}.bam.bai')
