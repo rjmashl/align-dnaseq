@@ -154,8 +154,8 @@ def index_bam(input_bam):
 
 
 def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, index_sequencer, library_preparation, platform, output_prefix, cpu):
-    logging.info('running trim galore')
     trim_galore_out_dir = 'trim_galore_outputs'
+    Path(trim_galore_out_dir).mkdir(exist_ok=True, parents=True)
     fq1_root = re.sub(r'^(.*).((fq)|(fastq))(.gz)?', r'\1', fq1.split('/')[-1])
     fq2_root = re.sub(r'^(.*).((fq)|(fastq))(.gz)?', r'\1', fq2.split('/')[-1])
     trimmed_fq1 = os.path.join(trim_galore_out_dir, f'{fq1_root}_val_1.fq.gz')
@@ -164,6 +164,7 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
     if os.path.isfile(trimmed_fq1) and os.path.isfile(trimmed_fq2):
         logging.info('Trimmed fq1 and fq2 exist. Skipping trim step.')
     else:
+        logging.info('running trim galore')
         cmd = trimgalore(fq1, fq2, trim_galore_out_dir)
         logging.info(f'executing command: {cmd}')
         output = subprocess.check_output(cmd, shell=True)
@@ -173,11 +174,14 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
     intermediate_dir = 'intermediates' + '/' + output_prefix
     Path(intermediate_dir).mkdir(exist_ok=True, parents=True)
     out_sam = os.path.join(intermediate_dir, 'bwa_out.sam')
-    cmd = bwa_pe(sample, flowcell, lane, index_sequencer, library_preparation,
-                 platform, reference, trimmed_fq1, trimmed_fq2, out_sam, cpu=16)
-    logging.info(f'executing command: {cmd}')
-    output = subprocess.check_output(cmd, shell=True)
-    logging.info(output)
+    if os.path.isfile(out_sam):
+        logging.info('Alignment to sam exists. Skipping this step.')
+    else:
+        cmd = bwa_pe(sample, flowcell, lane, index_sequencer, library_preparation,
+                     platform, reference, trimmed_fq1, trimmed_fq2, out_sam, cpu=16)
+        logging.info(f'executing command: {cmd}')
+        output = subprocess.check_output(cmd, shell=True)
+        logging.info(output)
 
     logging.info('converting sam to bam')
     bwa_bam = os.path.join(intermediate_dir, 'bwa_out.bam')
@@ -191,34 +195,48 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
 
     logging.info('sorting and indexing bam')
     sorted_bam = os.path.join(intermediate_dir, 'bwa_out.sorted.bam')
-    with tempfile.TemporaryDirectory( dir=args.tmpdir ) as tmpdirname:
-        print('created temporary directory', tmpdirname)
-        cmd = sort_and_index(bwa_bam, sorted_bam, tmpdirname)
-        logging.info(f'executing command: {cmd}')
-        output = subprocess.check_output(cmd, shell=True)
-        logging.info(output)
+    sorted_bai = os.path.join(intermediate_dir, 'bwa_out.sorted.bai')
+    if os.path.isfile(sorted_bam):
+        logging.info('bwa_out.sorted.bam exists. Skipping this step.')
+    else:
+        with tempfile.TemporaryDirectory( dir=args.tmpdir ) as tmpdirname:
+            print('created temporary directory', tmpdirname)
+            cmd = sort_and_index(bwa_bam, sorted_bam, tmpdirname)
+            logging.info(f'executing command: {cmd}')
+            output = subprocess.check_output(cmd, shell=True)
+            logging.info(output)
 
     logging.info('removing duplicates')
     dedup_bam = os.path.join(intermediate_dir, 'bwa_out.sorted.dedup.bam')
     dedup_metrics = os.path.join(intermediate_dir, 'dedup_metrics.txt')
-    cmd = remove_duplicates(sorted_bam, dedup_bam, dedup_metrics)
-    logging.info(f'executing command: {cmd}')
-    output = subprocess.check_output(cmd, shell=True)
-    logging.info(output)
+    if os.path.isfile(dedup_bam):
+        logging.info('bwa_out.sorted.dedup.bam exists. Skipping this step.')
+    else:
+        cmd = remove_duplicates(sorted_bam, dedup_bam, dedup_metrics)
+        logging.info(f'executing command: {cmd}')
+        output = subprocess.check_output(cmd, shell=True)
+        logging.info(output)
 
     logging.info('modeling bsqr')
     bsqr_file = os.path.join(intermediate_dir, 'bsqr_recal_file.table')
-    cmd = base_recalibrator(dedup_bam, known_sites, reference, bsqr_file)
-    logging.info(f'executing command: {cmd}')
-    output = subprocess.check_output(cmd, shell=True)
-    logging.info(output)
+    if os.path.isfile(bsqr_file):
+        logging.info('bsqr table exists. Skipping this step.')
+    else:
+        cmd = base_recalibrator(dedup_bam, known_sites, reference, bsqr_file)
+        logging.info(f'executing command: {cmd}')
+        output = subprocess.check_output(cmd, shell=True)
+        logging.info(output)
 
     logging.info('applying bsqr')
     bsqr_bam = os.path.join(intermediate_dir, 'final.bam')
-    cmd = apply_base_recalibrator(dedup_bam, bsqr_file, bsqr_bam)
-    logging.info(f'executing command: {cmd}')
-    output = subprocess.check_output(cmd, shell=True)
-    logging.info(output)
+    bsqr_bai = os.path.join(intermediate_dir, 'final.bai')
+    if os.path.isfile(bsqr_bam):
+        logging.info('bsqr bam or final.bam exists. Skipping this step.')
+    else:
+        cmd = apply_base_recalibrator(dedup_bam, bsqr_file, bsqr_bam)
+        logging.info(f'executing command: {cmd}')
+        output = subprocess.check_output(cmd, shell=True)
+        logging.info(output)
 
     logging.info('sorting and indexing bam')
     output_bam = f'{output_prefix}.bam'
@@ -233,9 +251,12 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
     os.rename(f'{output_prefix}.bai', f'{output_prefix}.bam.bai')
 
     logging.info('cleaning up large intermediates')
-    for fp in [out_sam, bwa_bam, sorted_bam, dedup_bam, bsqr_bam]:
-        logging.info(f'removing {fp}')
-        os.remove(fp)
+    for fp in [out_sam, bwa_bam, sorted_bam, sorted_bai, dedup_bam, bsqr_bam, bsqr_bai]:
+        if os.path.isfile(fp):
+            logging.info(f'removing {fp}')
+            os.remove(fp)
+        else:
+            logging.info(f'File {fp} does not exist to delete. Skipping.')
 
 
 def main():
