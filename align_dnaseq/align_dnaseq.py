@@ -49,6 +49,9 @@ parser.add_argument('--cpu', type=int, default=1,
 parser.add_argument('--tmpdir', type=str, default='',
     help='temporary dir for sorting to use')
 
+parser.add_argument('--gb-alloc', type=int, default=16,
+    help='gigabytes of allocated memory')
+
 
 args = parser.parse_args()
 
@@ -94,7 +97,7 @@ def sam_to_bam(sam_fp, bam_fp):
     return ' '.join(pieces)
 
 
-def sort_and_index(input_bam, output_bam, tmpdir):
+def sort_and_index(input_bam, output_bam, tmpdir, memalloc):
     # $JAVA -Xmx16G -jar $PICARD SortSam \
     #    CREATE_INDEX=true \
     #    I=$OUT/$NAME.human.bam \
@@ -103,6 +106,7 @@ def sort_and_index(input_bam, output_bam, tmpdir):
     #    VALIDATION_STRINGENCY=STRICT
     pieces = [
         'picard SortSam CREATE_INDEX=true SORT_ORDER=coordinate VALIDATION_STRINGENCY=STRICT',
+        '-Xmx'+str(memalloc)+'g',
         f'I={input_bam}',
         f'O={output_bam}',
         f'TMP_DIR={tmpdir}',
@@ -110,7 +114,7 @@ def sort_and_index(input_bam, output_bam, tmpdir):
     return ' '.join(pieces)
 
 
-def remove_duplicates(input_bam, output_bam, metrics_fp):
+def remove_duplicates(input_bam, output_bam, metrics_fp, memalloc):
     # # remove-duplication
     # echo "[INFO] s3: picard - markduplicates" >&2
     # $JAVA -Xmx16G -jar $PICARD MarkDuplicates \
@@ -120,6 +124,7 @@ def remove_duplicates(input_bam, output_bam, metrics_fp):
     #    M=$OUT/$NAME.human.remDup.metrics.txt
     pieces = [
         'picard MarkDuplicates REMOVE_DUPLICATES=false',
+        '-Xmx'+str(memalloc)+'g',
         f'I={input_bam}',
         f'O={output_bam}',
         f'M={metrics_fp}',
@@ -153,7 +158,7 @@ def index_bam(input_bam):
     return f'samtools index {input_bam}'
 
 
-def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, index_sequencer, library_preparation, platform, output_prefix, cpu):
+def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, index_sequencer, library_preparation, platform, output_prefix, cpu, tmpdir, gb_alloc):
     trim_galore_out_dir = 'trim_galore_outputs'
     Path(trim_galore_out_dir).mkdir(exist_ok=True, parents=True)
     fq1_root = re.sub(r'^(.*).((fq)|(fastq))(.gz)?', r'\1', fq1.split('/')[-1])
@@ -199,9 +204,9 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
     if os.path.isfile(sorted_bam):
         logging.info('bwa_out.sorted.bam exists. Skipping this step.')
     else:
-        with tempfile.TemporaryDirectory( dir=args.tmpdir ) as tmpdirname:
+        with tempfile.TemporaryDirectory( dir=tmpdir ) as tmpdirname:
             print('created temporary directory', tmpdirname)
-            cmd = sort_and_index(bwa_bam, sorted_bam, tmpdirname)
+            cmd = sort_and_index(bwa_bam, sorted_bam, tmpdirname, gb_alloc - 2)
             logging.info(f'executing command: {cmd}')
             output = subprocess.check_output(cmd, shell=True)
             logging.info(output)
@@ -212,7 +217,7 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
     if os.path.isfile(dedup_bam):
         logging.info('bwa_out.sorted.dedup.bam exists. Skipping this step.')
     else:
-        cmd = remove_duplicates(sorted_bam, dedup_bam, dedup_metrics)
+        cmd = remove_duplicates(sorted_bam, dedup_bam, dedup_metrics, gb_alloc - 2)
         logging.info(f'executing command: {cmd}')
         output = subprocess.check_output(cmd, shell=True)
         logging.info(output)
@@ -240,9 +245,9 @@ def run_align_dnaseq(fq1, fq2, reference, known_sites, sample, flowcell, lane, i
 
     logging.info('sorting and indexing bam')
     output_bam = f'{output_prefix}.bam'
-    with tempfile.TemporaryDirectory( dir=args.tmpdir ) as tmpdirname:
+    with tempfile.TemporaryDirectory( dir=tmpdir ) as tmpdirname:
         print('created temporary directory', tmpdirname)
-        cmd = sort_and_index(bsqr_bam, output_bam, tmpdirname)
+        cmd = sort_and_index(bsqr_bam, output_bam, tmpdirname, gb_alloc -2)
         logging.info(f'executing command: {cmd}')
         output = subprocess.check_output(cmd, shell=True)
         logging.info(output)
@@ -263,7 +268,8 @@ def main():
     run_align_dnaseq(
         args.fq1, args.fq2, args.reference, args.known_sites, args.sample,
         args.flowcell, args.lane, args.index_sequencer,
-        args.library_preparation, args.platform, args.out_prefix, args.cpu)
+        args.library_preparation, args.platform, args.out_prefix, args.cpu,
+        args.tmpdir, args.gb_alloc)
 
 
 if __name__ == '__main__':
